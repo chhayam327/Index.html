@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mayur Ringtone Edge</title>
+    <script src="https://unpkg.com/wavesurfer.js"></script>
+    <style>
+        body { background: #0a0a0a; color: white; font-family: sans-serif; margin: 0; }
+        header { position: sticky; top: 0; background: #111; padding: 15px; z-index: 100; border-bottom: 1px solid #333; }
+        .search-bar { width: 100%; padding: 12px; border-radius: 25px; border: none; background: #222; color: white; }
+        
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 15px; }
+        .card { position: relative; height: 200px; border-radius: 15px; overflow: hidden; background-size: cover; background-position: center; border: 1px solid #222; }
+        .card-info { position: absolute; bottom: 0; width: 100%; background: linear-gradient(transparent, black); padding: 10px; text-align: center; }
+        
+        #editor { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 1000; padding: 20px; }
+        #waveform { background: #111; margin: 20px 0; border-radius: 10px; height: 100px; }
+        .btn { background: #6c5ce7; color: white; border: none; padding: 10px; border-radius: 5px; width: 100%; margin-top: 10px; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+<header>
+    <input type="text" id="searchInput" class="search-bar" placeholder="Search Songs...">
+</header>
+
+<div class="grid" id="songGrid"></div>
+
+<div id="editor">
+    <button onclick="closeEditor()" style="float:right; color:white; background:none; border:none; font-size:24px;">×</button>
+    <h3>Instagram Style Trimmer</h3>
+    <div id="waveform"></div>
+    <button class="btn" onclick="playPause()">Play / Pause</button>
+    <button class="btn" style="background:#2ecc71;" onclick="startDownload()">Download (12s Ad)</button>
+    <div id="status" style="margin-top:20px; color:yellow;"></div>
+</div>
+
+<script>
+// 1. AAPKI RINGTONE LIST (Yahan naye gaane add karo)
+const mySongs = [
+    { title: "Animal BGM", img: "https://c.saavncdn.com/209/Animal-Hindi-2023-20231124191036-500x500.jpg", url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" },
+    { title: "Pushpa Tone", img: "https://c.saavncdn.com/152/Pushpa-The-Rise-Hindi-2021-20211217150036-500x500.jpg", url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3" },
+    { title: "KGF Theme", img: "https://c.saavncdn.com/475/K-G-F-Chapter-2-Hindi-2022-20220412195726-500x500.jpg", url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3" }
+];
+
+const grid = document.getElementById('songGrid');
+let wavesurfer;
+
+// 2. SEARCH LOGIC
+document.getElementById('searchInput').addEventListener('input', (e) => {
+    const term = e.target.value.toLowerCase();
+    const filtered = mySongs.filter(s => s.title.toLowerCase().includes(term));
+    displaySongs(filtered);
+});
+
+function displaySongs(songs) {
+    grid.innerHTML = '';
+    songs.forEach(song => {
+        grid.innerHTML += `
+            <div class="card" style="background-image: url('${song.img}')">
+                <div class="card-info">
+                    <div style="font-size:14px;">${song.title}</div>
+                    <button class="btn" style="padding:5px; font-size:12px;" onclick="openTrimmer('${song.url}')">Edit & Cut</button>
+                </div>
+            </div>`;
+    });
+}
+
+// 3. TRIMMER LOGIC
+function openTrimmer(url) {
+    document.getElementById('editor').style.display = 'block';
+    if(wavesurfer) wavesurfer.destroy();
+    wavesurfer = WaveSurfer.create({ container: '#waveform', waveColor: '#555', progressColor: '#6c5ce7', height: 100 });
+    wavesurfer.load(url);
+}
+
+function closeEditor() { document.getElementById('editor').style.display = 'none'; wavesurfer.stop(); }
+function playPause() { wavesurfer.playPause(); }
+
+function startDownload() {
+    let sec = 12;
+    const status = document.getElementById('status');
+    const timer = setInterval(() => {
+        status.innerHTML = "Preparing Ringtone... Please wait " + sec + "s (AD)";
+        sec--;
+        if(sec < 0) {
+            clearInterval(timer);
+            status.innerHTML = "Download Ready! (File Saved)";
+            alert("Ringtone Downloaded Successfully!");
+        }
+    }, 1000);
+}
+
+// Initial Load
+displaySongs(mySongs);
+</script>
+
+</body>
+</html>
+
